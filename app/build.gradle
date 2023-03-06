@@ -6,10 +6,21 @@
  * User Manual available at https://docs.gradle.org/8.0.1/userguide/building_java_projects.html
  */
 
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
+
+
+shadowJar {
+    archiveBaseName.set('UShallNotPass')
+    archiveVersion.set('')
+    archiveClassifier.set('')
+}
+
+
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -27,4 +38,15 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClass = 'ushallnotpass_public.App'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ushallnotpass_public.App'
+    }
+}
+
+
+run {
+    standardInput = System.in
 }
