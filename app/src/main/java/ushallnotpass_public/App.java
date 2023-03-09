@@ -9,6 +9,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -22,15 +24,14 @@ import java.io.IOException;
 
 public class App {
 
-    private static final String PASSWORDS_FILE = "./passwords.txt";
+    private static final String PASSWORDS_FILE = "/passwords.txt";
     private static final String DELIMITER = "===";
     private static String encryptedPasswordTest = "not initialized";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException,
             NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, FileNotFoundException, InterruptedException {
 
-        //Initialzing IV
-        //IvParameterSpec ivParameterSpec = Encryption.generateIv();
+        URL url = App.class.getResource(PASSWORDS_FILE);
 
         System.out.println(ASCII.HEADLINE);
         System.out.println(ASCII.ENTERKEY);
@@ -38,11 +39,43 @@ public class App {
         // Initialize empty password
         byte[] originalPassword;
 
-        File file = new File(PASSWORDS_FILE);
+        File file = new File(url.getFile());
+
+
+        if (!file.exists()) {
+            try {
+                Files.createDirectories(file.getParentFile().toPath());
+                Files.createFile(file.toPath());
+                System.out.println("Created passwords.txt");
+            } catch (IOException e) {
+                System.err.println("Failed to create passwords.txt: " + e.getMessage());
+            }
+        } else {
+            System.out.println("passwords.txt already exists");
+        }
+
         Scanner scanner = new Scanner(System.in);
 
+        //Testing if there are more than one line
+        int lineCounter = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            String line;
+            boolean firstLineHasPassed = false;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(DELIMITER);
+                if(firstLineHasPassed){
+                    //System.out.println(parts[0] + "===" + parts[1] + "===" + parts[2]);
+                }
+                firstLineHasPassed = true;
+                lineCounter++;
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
+
         //Checks if first login
-        if(!file.exists()){
+        if(lineCounter < 1){
 
             //Encrypting password with real key
             System.out.println("Create a key for all future logins:");
@@ -58,7 +91,7 @@ public class App {
             originalPassword = Base64.getDecoder().decode(enteredKey);
 
             //Writing to file
-            try (FileWriter writer = new FileWriter(PASSWORDS_FILE, true)) {
+            try (FileWriter writer = new FileWriter(url.getFile(), true)) {
                 writer.write("Test:" + encryptedPassword + "\n");
                 System.out.println("Password added.");
             } catch (IOException e) {
@@ -129,7 +162,7 @@ public class App {
                     IvParameterSpec ivParameterSpec = Encryption.generateIv();
                     String encryptedPassword = Encryption.encrypt(password, key, ivParameterSpec);
 
-                    try (FileWriter writer = new FileWriter(PASSWORDS_FILE, true)) {
+                    try (FileWriter writer = new FileWriter(url.getFile(), true)) {
                         writer.write(name + DELIMITER + username + DELIMITER + encryptedPassword + "\n");
                         System.out.println("Password added.");
                     } catch (IOException e) {
@@ -142,7 +175,7 @@ public class App {
                 System.out.println("Enter a website or app name:");
                 String name = scanner.nextLine();
 
-                try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                     String line;
                     boolean found = false;
                     while ((line = reader.readLine()) != null) {
@@ -176,7 +209,7 @@ public class App {
                 System.out.println("Enter a website or app name to delete:");
                 String websiteName = scanner.nextLine();
 
-                try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                     String line;
                     boolean found = false;
                     while ((line = reader.readLine()) != null) {
@@ -194,7 +227,7 @@ public class App {
                     }
                     reader.close();
 
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
                     for (String l : arrList) {
                         writer.write(l);
                         writer.newLine();
@@ -221,7 +254,7 @@ public class App {
             else if (command.equalsIgnoreCase("listAll")) {
                 System.out.println("Listing all entries:");
                 System.out.println("----------------------------------------------------");
-                try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                     String line;
                     boolean firstLineHasPassed = false;
                     int counter = 0;
@@ -244,7 +277,7 @@ public class App {
             }
             else if (command.equals("BURN EVERYTHING")) {
                 if(file.exists()){
-                    try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
+                    try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                         String line;
                         while ((line = reader.readLine()) != null) {
                             //Setting first line to test
@@ -265,7 +298,7 @@ public class App {
                 }
 
                 //Inserting back the test password
-                try (FileWriter writer = new FileWriter(PASSWORDS_FILE, true)) {
+                try (FileWriter writer = new FileWriter(url.getFile(), true)) {
                     writer.write(encryptedPasswordTest + "\n");
                 } catch (IOException e) {
                     System.err.println("Error writing to passwords file: " + e.getMessage());
@@ -278,7 +311,7 @@ public class App {
 
                 System.out.println("Enter a website or app name to change:");
                 String websiteName = scanner.nextLine();
-                try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                     String line;
                     boolean found = false;
                     while ((line = reader.readLine()) != null) {
@@ -309,7 +342,7 @@ public class App {
                     }
                     reader.close();
 
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
                     for (String l : arrList) {
                         writer.write(l);
                         writer.newLine();
@@ -348,6 +381,15 @@ public class App {
 /*
  *   BACKLOG
  *
+ *
+ * //
+ * Need to fix the shadowJar problem **CHECK
+ * Need to create new password file after BURN EVERYTHING,change and so on
+ * Need to fix the decoder problem
+ * Refactor
+ *
+ *
+ * //
  *   0) Setup github and check how to make things private and then public later **CHECK
  *
  *   1) Encrypt password-entry to txt using final toy byte key **CHECK

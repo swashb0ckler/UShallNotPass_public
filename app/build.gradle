@@ -18,9 +18,8 @@ shadowJar {
     archiveBaseName.set('UShallNotPass')
     archiveVersion.set('')
     archiveClassifier.set('')
+
 }
-
-
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -39,6 +38,7 @@ application {
     // Define the main class for the application.
     mainClass = 'ushallnotpass_public.App'
 }
+
 
 jar {
     manifest {
