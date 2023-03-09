@@ -37,7 +37,7 @@ public class App {
         System.out.println(ASCII.ENTERKEY);
 
         // Initialize empty password
-        byte[] originalPassword;
+        char[] originalPassword = null;
 
         File file = new File(url.getFile());
 
@@ -88,7 +88,7 @@ public class App {
             encryptedPasswordTest = encryptedPassword;
 
             //Setting the original password
-            originalPassword = Base64.getDecoder().decode(enteredKey);
+            originalPassword = enteredKey.toCharArray();
 
             //Writing to file
             try (FileWriter writer = new FileWriter(url.getFile(), true)) {
@@ -110,7 +110,7 @@ public class App {
 
             if(passwordFromFile.equals(enteredKey)){
                 System.out.println("-ACCEPTED-");
-                originalPassword = Base64.getDecoder().decode(passwordFromFile);
+                originalPassword = passwordFromFile.toCharArray();
 
             } else{
                 System.out.println("-DENIED-");
@@ -155,8 +155,7 @@ public class App {
                     String password = scanner.nextLine(); // Needs to be in bytes for added security
 
                     //Receive the login password
-                    String originalPasswordString = Base64.getEncoder()
-                            .encodeToString(originalPassword);
+                    String originalPasswordString = new String(originalPassword);
 
                     SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
                     IvParameterSpec ivParameterSpec = Encryption.generateIv();
@@ -182,8 +181,7 @@ public class App {
                         String[] parts = line.split(DELIMITER);
                         if (parts[0].equals(name)) {
                             //Receive the login password
-                            String originalPasswordString = Base64.getEncoder()
-                                    .encodeToString(originalPassword);
+                            String originalPasswordString = new String(originalPassword);
 
                             //Decryption
                             SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
@@ -319,8 +317,7 @@ public class App {
                         if (parts[0].equals(websiteName)) {
 
                             //Receive the login password
-                            String originalPasswordString = Base64.getEncoder()
-                                    .encodeToString(originalPassword);
+                            String originalPasswordString = new String(originalPassword);
 
                             //Enter new password
                             System.out.println("Enter new password");
@@ -384,7 +381,7 @@ public class App {
  *
  * //
  * Need to fix the shadowJar problem **CHECK
- * Need to create new password file after BURN EVERYTHING,change and so on
+ * Need to create new password file after BURN EVERYTHING,change and so on **CHECK
  * Need to fix the decoder problem
  * Refactor
  *
