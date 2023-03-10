@@ -30,9 +30,8 @@ public class App {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException,
             NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, FileNotFoundException, InterruptedException {
 
-        //Intro screen
+        //Headline
         System.out.println(ASCII.HEADLINE);
-        System.out.println(ASCII.ENTERKEY);
 
         // Initialize empty password
         char[] originalPassword = null;
@@ -54,19 +53,11 @@ public class App {
         //Creates scanner
         Scanner scanner = new Scanner(System.in);
 
-        //Checks if first login
-        int lineCounter = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-            while (reader.readLine() != null) {
-                lineCounter++;
-            }
+        //If first login:
+        if(App.checkIfFileIsEmpty(url,true)){
 
-        } catch (IOException e) {
-            System.err.println("Error reading from passwords file: " + e.getMessage());
-        }
-        //When it's first login:
-        if(lineCounter < 1){
-
+            //Intro Text
+            System.out.println(ASCII.FIRSTKEY);
             //Encrypting first password
             System.out.println("Create a key for all future logins:");
             String enteredKey = scanner.nextLine();
@@ -89,6 +80,9 @@ public class App {
             }
 
         } else{
+
+            //Intro for existing user
+            System.out.println(ASCII.ENTERKEY);
 
             System.out.println("\n" + "Enter your original key:");
             String enteredKey = scanner.nextLine();
@@ -114,7 +108,7 @@ public class App {
 
             String command = scanner.nextLine();
 
-            App.commandHandler(command,scanner, originalPassword, url, file );
+            App.commandHandler(command,scanner, originalPassword, url, file);
 
             if (command.equalsIgnoreCase("quit")){
                 break;
@@ -135,24 +129,22 @@ public class App {
 
 
     public static void commandHandler(String command, Scanner scanner, char[] originalPassword, URL url, File file) {
+
         if (command.equalsIgnoreCase("add")) {
             handleAdd(scanner, originalPassword, url, file);
         }
         else if(command.equalsIgnoreCase("get")) {
             handleGet(scanner, originalPassword, url, file);
         }
-
         else if (command.equalsIgnoreCase("delete")) {
             handleDelete(scanner, originalPassword, url, file);
         }
-
         else if (command.equalsIgnoreCase("help")) {
             handleHelp();
         }
         else if (command.equalsIgnoreCase("about")) {
             handleAbout();
         }
-
         else if (command.equalsIgnoreCase("listAll")) {
             handleListAll(scanner, originalPassword, url, file);
         }
@@ -309,24 +301,20 @@ public class App {
     }
 
     public static void handleListAll(Scanner scanner, char[] originalPassword, URL url, File file){
-        System.out.println("Listing all entries:");
+        System.out.println("\n" + "Listing all entries:");
         System.out.println("----------------------------------------------------");
         try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
             String line;
             boolean firstLineHasPassed = false;
-            int counter = 0;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(DELIMITER);
                 if(firstLineHasPassed){
                     System.out.println(parts[0] + "===" + parts[1] + "===" + parts[2]);
                 }
                 firstLineHasPassed = true;
-                counter++;
             }
+
             System.out.println("----------------------------------------------------");
-            if(counter <= 1){
-                System.out.println("...There are no entries");
-            }
 
         } catch (IOException e) {
             System.err.println("Error reading from passwords file: " + e.getMessage());
@@ -391,7 +379,8 @@ public class App {
     }
 
     public static void handleBurnEverything(Scanner scanner, char[] originalPassword, URL url, File file){
-        if(file.exists()){
+        //lineCounter >= 1
+        if(App.checkIfFileIsEmpty(url, false)){
             try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -408,15 +397,16 @@ public class App {
             if(fileDeleted){
                 System.out.println(ASCII.BURNING);
             }
+
+            //Inserting back the test password
+            try (FileWriter writer = new FileWriter(url.getFile(), true)) {
+                writer.write(encryptedPasswordTest + "\n");
+            } catch (IOException e) {
+                System.err.println("Error writing to passwords file: " + e.getMessage());
+            }
+
         } else{
             System.out.println("Nothing to burn..");
-        }
-
-        //Inserting back the test password
-        try (FileWriter writer = new FileWriter(url.getFile(), true)) {
-            writer.write(encryptedPasswordTest + "\n");
-        } catch (IOException e) {
-            System.err.println("Error writing to passwords file: " + e.getMessage());
         }
     }
 
@@ -425,6 +415,29 @@ public class App {
         System.out.println("See you later!");
     }
 
+    public static boolean checkIfFileIsEmpty(URL url, boolean includingTest){
+        int lineCounter = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            while (reader.readLine() != null) {
+                lineCounter++;
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
+
+        //For first login
+        if (includingTest && lineCounter < 1){
+            return true;
+        }
+        //For BURN EVERYTHING
+        else if (!includingTest && lineCounter > 1){
+            return true;
+        }
+        return false;
+    }
+
+    
 }
 
 /*
