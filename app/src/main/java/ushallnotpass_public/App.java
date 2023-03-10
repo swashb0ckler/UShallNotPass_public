@@ -16,7 +16,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileWriter;
@@ -40,7 +39,6 @@ public class App {
         char[] originalPassword = null;
 
         File file = new File(url.getFile());
-
 
         if (!file.exists()) {
             try {
@@ -74,10 +72,10 @@ public class App {
             System.err.println("Error reading from passwords file: " + e.getMessage());
         }
 
-        //Checks if first login
+        //Checks if it's first login
         if(lineCounter < 1){
 
-            //Encrypting password with real key
+            //Encrypting first password into test
             System.out.println("Create a key for all future logins:");
             String enteredKey = scanner.nextLine();
             IvParameterSpec ivParameterSpec = Encryption.generateIv();
@@ -126,166 +124,14 @@ public class App {
 
             App.commandHandler(command,scanner, originalPassword, url, file );
 
-
-            if (command.equalsIgnoreCase("delete")) {
-                ArrayList<String> arrList = new ArrayList<>();
-                System.out.println("Enter a website or app name to delete:");
-                String websiteName = scanner.nextLine();
-
-                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-                    String line;
-                    boolean found = false;
-                    while ((line = reader.readLine()) != null) {
-                        boolean lineToDelete = false;
-                        String[] parts = line.split(DELIMITER);
-                        if (parts[0].equals(websiteName)) {
-                            lineToDelete = true;
-                            found = true;
-
-                        } else{
-                            if(!lineToDelete){
-                                arrList.add(line);
-                            }
-                        }
-                    }
-                    reader.close();
-
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
-                    for (String l : arrList) {
-                        writer.write(l);
-                        writer.newLine();
-                    }
-                    writer.close();
-
-                    if (!found) {
-                        System.out.println("Website/App not found.");
-                    }
-                } catch (IOException e) {
-                    System.err.println("Error reading from passwords file: " + e.getMessage());
-                }
-
-            }else if (command.equalsIgnoreCase("quit")) {
-                System.out.println(ASCII.OUTRO);
-                System.out.println("See you later!");
+            if (command.equalsIgnoreCase("quit")){
                 break;
-            } else if (command.equalsIgnoreCase("help")) {
-                System.out.println(ASCII.COMMANDS);
             }
-            else if (command.equalsIgnoreCase("about")) {
-                System.out.println(ASCII.ABOUT);
-            }
-            else if (command.equalsIgnoreCase("listAll")) {
-                System.out.println("Listing all entries:");
-                System.out.println("----------------------------------------------------");
-                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-                    String line;
-                    boolean firstLineHasPassed = false;
-                    int counter = 0;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(DELIMITER);
-                        if(firstLineHasPassed){
-                            System.out.println(parts[0] + "===" + parts[1] + "===" + parts[2]);
-                        }
-                        firstLineHasPassed = true;
-                        counter++;
-                    }
-                    System.out.println("----------------------------------------------------");
-                    if(counter <= 1){
-                        System.out.println("...There are no entries");
-                    }
 
-                } catch (IOException e) {
-                    System.err.println("Error reading from passwords file: " + e.getMessage());
-                }
-            }
-            else if (command.equals("BURN EVERYTHING")) {
-                if(file.exists()){
-                    try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            //Setting first line to test
-                            encryptedPasswordTest = line;
-                            break;
-                        }
-
-                    } catch (IOException e) {
-                        System.err.println("Error reading from passwords file: " + e.getMessage());
-                    }
-                    //Checks if file is deleted
-                    boolean fileDeleted = file.delete();
-                    if(fileDeleted){
-                        System.out.println(ASCII.BURNING);
-                    }
-                } else{
-                    System.out.println("Nothing to burn..");
-                }
-
-                //Inserting back the test password
-                try (FileWriter writer = new FileWriter(url.getFile(), true)) {
-                    writer.write(encryptedPasswordTest + "\n");
-                } catch (IOException e) {
-                    System.err.println("Error writing to passwords file: " + e.getMessage());
-                }
-
-
-            }
-            else if (command.equalsIgnoreCase("change")){
-                ArrayList<String> arrList = new ArrayList<>();
-
-                System.out.println("Enter a website or app name to change:");
-                String websiteName = scanner.nextLine();
-                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-                    String line;
-                    boolean found = false;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(DELIMITER);
-                        if (parts[0].equals(websiteName)) {
-
-                            //Receive the login password
-                            String originalPasswordString = new String(originalPassword);
-
-                            //Enter new password
-                            System.out.println("Enter new password");
-                            String newPassword = scanner.nextLine();
-
-                            //Encryption
-                            SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
-                            IvParameterSpec ivParameterSpec = Encryption.generateIv();
-                            String encryptedPassword = Encryption.encrypt(newPassword, key, ivParameterSpec);
-
-                            arrList.add(parts[0] + "===" + parts[1] + "===" + encryptedPassword);
-
-                            found = true;
-                            break;
-
-                        } else{
-                            arrList.add(line);
-                        }
-                    }
-                    reader.close();
-
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
-                    for (String l : arrList) {
-                        writer.write(l);
-                        writer.newLine();
-                    }
-                    writer.close();
-
-                    if (!found) {
-                        System.out.println("Website/App not found.");
-                    }
-                } catch (IOException e) {
-                    System.err.println("Error reading from passwords file: " + e.getMessage());
-                }
-
-
-            }else {
-                System.out.println("Invalid command. Try again.");
-            }
         }
-
         scanner.close();
     }
+
 
     public static String getEncryptedPassword(File file) throws FileNotFoundException {
         Scanner fileScanner = new Scanner(file);
@@ -303,16 +149,18 @@ public class App {
         else if(command.equalsIgnoreCase("get")) {
             handleGet(scanner, originalPassword, url, file);
         }
-        /*
-        else if (command.equalsIgnoreCase("quit")) {
-            handleQuit(scanner, originalPassword, url, file);
+
+        else if (command.equalsIgnoreCase("delete")) {
+            handleDelete(scanner, originalPassword, url, file);
         }
+
         else if (command.equalsIgnoreCase("help")) {
-            handleHelp(scanner, originalPassword, url, file);
+            handleHelp();
         }
         else if (command.equalsIgnoreCase("about")) {
-            handleAbout(scanner, originalPassword, url, file);
+            handleAbout();
         }
+
         else if (command.equalsIgnoreCase("listAll")) {
             handleListAll(scanner, originalPassword, url, file);
         }
@@ -322,11 +170,13 @@ public class App {
         else if (command.equals("BURN EVERYTHING")) {
             handleBurnEverything(scanner, originalPassword, url, file);
         }
-        else {
-            System.out.println("Invalid command. Type 'help' for a list of commands.");
+        else if (command.equalsIgnoreCase("quit")){
+            handleQuit();
+        }
+        else{
+            System.out.println("Invalid command");
         }
 
-         */
     }
 
     public static void handleAdd(Scanner scanner, char[] originalPassword, URL url, File file) {
@@ -403,7 +253,6 @@ public class App {
                             InvalidKeySpecException | BadPaddingException | InvalidKeyException e) {
                         e.printStackTrace();
                     }
-
                     System.out.println("                                    ***************************");
                     System.out.println("                                    * Username: " + parts[1]);
                     System.out.println("                                    * Password: " + plainText);
@@ -421,7 +270,168 @@ public class App {
     }
 
 
+    public static void handleDelete(Scanner scanner, char[] originalPassword, URL url, File file){
+        ArrayList<String> arrList = new ArrayList<>();
+        System.out.println("Enter a website or app name to delete:");
+        String websiteName = scanner.nextLine();
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            String line;
+            boolean found = false;
+            while ((line = reader.readLine()) != null) {
+                boolean lineToDelete = false;
+                String[] parts = line.split(DELIMITER);
+                if (parts[0].equals(websiteName)) {
+                    lineToDelete = true;
+                    found = true;
+
+                } else{
+                    if(!lineToDelete){
+                        arrList.add(line);
+                    }
+                }
+            }
+            reader.close();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
+            for (String l : arrList) {
+                writer.write(l);
+                writer.newLine();
+            }
+            writer.close();
+
+            if (!found) {
+                System.out.println("Website/App not found.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
+    }
+
+    public static void handleHelp(){
+        System.out.println(ASCII.COMMANDS);
+    }
+
+    public static void handleAbout(){
+        System.out.println(ASCII.ABOUT);
+    }
+
+    public static void handleListAll(Scanner scanner, char[] originalPassword, URL url, File file){
+        System.out.println("Listing all entries:");
+        System.out.println("----------------------------------------------------");
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            String line;
+            boolean firstLineHasPassed = false;
+            int counter = 0;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(DELIMITER);
+                if(firstLineHasPassed){
+                    System.out.println(parts[0] + "===" + parts[1] + "===" + parts[2]);
+                }
+                firstLineHasPassed = true;
+                counter++;
+            }
+            System.out.println("----------------------------------------------------");
+            if(counter <= 1){
+                System.out.println("...There are no entries");
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
+    }
+
+    public static void handleChange(Scanner scanner, char[] originalPassword, URL url, File file){
+        ArrayList<String> arrList = new ArrayList<>();
+
+        System.out.println("Enter a website or app name to change:");
+        String websiteName = scanner.nextLine();
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            String line;
+            boolean found = false;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(DELIMITER);
+                if (parts[0].equals(websiteName)) {
+
+                    //Receive the login password
+                    String originalPasswordString = new String(originalPassword);
+
+                    //Enter new password
+                    System.out.println("Enter new password");
+                    String newPassword = scanner.nextLine();
+
+                    //Encryption
+                    try{
+                        SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
+                        IvParameterSpec ivParameterSpec = Encryption.generateIv();
+                        String encryptedPassword = Encryption.encrypt(newPassword, key, ivParameterSpec);
+                        arrList.add(parts[0] + "===" + parts[1] + "===" + encryptedPassword);
+
+                    } catch(InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
+                            InvalidKeySpecException | BadPaddingException | InvalidKeyException e) {
+                        e.printStackTrace();
+                    }
+
+                    found = true;
+                    break;
+
+                } else{
+                    arrList.add(line);
+                }
+            }
+            reader.close();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(url.getFile()));
+            for (String l : arrList) {
+                writer.write(l);
+                writer.newLine();
+            }
+            writer.close();
+
+            if (!found) {
+                System.out.println("Website/App not found.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
+
+
+    }
+
+    public static void handleBurnEverything(Scanner scanner, char[] originalPassword, URL url, File file){
+        if(file.exists()){
+            try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    //Setting first line to test
+                    encryptedPasswordTest = line;
+                    break;
+                }
+
+            } catch (IOException e) {
+                System.err.println("Error reading from passwords file: " + e.getMessage());
+            }
+            //Checks if file is deleted
+            boolean fileDeleted = file.delete();
+            if(fileDeleted){
+                System.out.println(ASCII.BURNING);
+            }
+        } else{
+            System.out.println("Nothing to burn..");
+        }
+
+        //Inserting back the test password
+        try (FileWriter writer = new FileWriter(url.getFile(), true)) {
+            writer.write(encryptedPasswordTest + "\n");
+        } catch (IOException e) {
+            System.err.println("Error writing to passwords file: " + e.getMessage());
+        }
+    }
+
+    public static void handleQuit(){
+        System.out.println(ASCII.OUTRO);
+        System.out.println("See you later!");
+    }
 
 }
 
