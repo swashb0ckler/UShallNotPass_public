@@ -124,85 +124,10 @@ public class App {
 
             String command = scanner.nextLine();
 
-            if (command.equalsIgnoreCase("add")) {
+            App.commandHandler(command,scanner, originalPassword, url, file );
 
-                System.out.println(ASCII.INFORMATION);
-                System.out.println("Enter the name of the website you want to add:");
-                String name = scanner.nextLine();
 
-                //Checking if name already exists
-                boolean websiteAlreadyExists = false;
-                try {
-                    Scanner fileScanner = new Scanner(file);
-                    while (fileScanner.hasNextLine()) {
-                        String line = fileScanner.nextLine();
-                        if(line.contains(name)) {
-                            System.out.println("Website already exists");
-                            websiteAlreadyExists = true;
-                            break;
-                        }
-                    }
-                } catch(FileNotFoundException e) {
-                    System.out.println("No such file");
-                }
-
-                if(!websiteAlreadyExists){
-
-                    System.out.println("Enter a username:");
-                    String username = scanner.nextLine();
-
-                    System.out.println("Enter a password:");
-                    String password = scanner.nextLine(); // Needs to be in bytes for added security
-
-                    //Receive the login password
-                    String originalPasswordString = new String(originalPassword);
-
-                    SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
-                    IvParameterSpec ivParameterSpec = Encryption.generateIv();
-                    String encryptedPassword = Encryption.encrypt(password, key, ivParameterSpec);
-
-                    try (FileWriter writer = new FileWriter(url.getFile(), true)) {
-                        writer.write(name + DELIMITER + username + DELIMITER + encryptedPassword + "\n");
-                        System.out.println("Password added.");
-                    } catch (IOException e) {
-                        System.err.println("Error writing to passwords file: " + e.getMessage());
-                    }
-                }
-
-            } else if (command.equalsIgnoreCase("get")) {
-                System.out.println(ASCII.GETPWD);
-                System.out.println("Enter a website or app name:");
-                String name = scanner.nextLine();
-
-                try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-                    String line;
-                    boolean found = false;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(DELIMITER);
-                        if (parts[0].equals(name)) {
-                            //Receive the login password
-                            String originalPasswordString = new String(originalPassword);
-
-                            //Decryption
-                            SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
-                            String plainText = Encryption.decrypt(parts[2], key);
-
-                            System.out.println("                                    ***************************");
-                            System.out.println("                                    * Username: " + parts[1]);
-                            System.out.println("                                    * Password: " + plainText);
-                            System.out.println("                                    ***************************");
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        System.out.println("Password not found.");
-                    }
-                } catch (IOException e) {
-                    System.err.println("Error reading from passwords file: " + e.getMessage());
-                }
-
-            } else if (command.equalsIgnoreCase("delete")) {
+            if (command.equalsIgnoreCase("delete")) {
                 ArrayList<String> arrList = new ArrayList<>();
                 System.out.println("Enter a website or app name to delete:");
                 String websiteName = scanner.nextLine();
@@ -368,6 +293,131 @@ public class App {
         //Removing 'Test:' from the string
         String pattern = "^Test:\\s*";
         return firstLine.replaceFirst(pattern, "");
+    }
+
+
+    public static void commandHandler(String command, Scanner scanner, char[] originalPassword, URL url, File file) {
+        if (command.equalsIgnoreCase("add")) {
+            handleAdd(scanner, originalPassword, url, file);
+        }
+        else if(command.equalsIgnoreCase("get")) {
+            handleGet(scanner, originalPassword, url, file);
+        }
+        /*
+        else if (command.equalsIgnoreCase("quit")) {
+            handleQuit(scanner, originalPassword, url, file);
+        }
+        else if (command.equalsIgnoreCase("help")) {
+            handleHelp(scanner, originalPassword, url, file);
+        }
+        else if (command.equalsIgnoreCase("about")) {
+            handleAbout(scanner, originalPassword, url, file);
+        }
+        else if (command.equalsIgnoreCase("listAll")) {
+            handleListAll(scanner, originalPassword, url, file);
+        }
+        else if (command.equalsIgnoreCase("change")) {
+            handleChange(scanner, originalPassword, url, file);
+        }
+        else if (command.equals("BURN EVERYTHING")) {
+            handleBurnEverything(scanner, originalPassword, url, file);
+        }
+        else {
+            System.out.println("Invalid command. Type 'help' for a list of commands.");
+        }
+
+         */
+    }
+
+    public static void handleAdd(Scanner scanner, char[] originalPassword, URL url, File file) {
+
+        System.out.println(ASCII.INFORMATION);
+        System.out.println("Enter the name of the website you want to add:");
+        String name = scanner.nextLine();
+
+        //Checking if name already exists
+        boolean websiteAlreadyExists = false;
+        try {
+            Scanner fileScanner = new Scanner(file);
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                if(line.contains(name)) {
+                    System.out.println("Website already exists");
+                    websiteAlreadyExists = true;
+                    break;
+                }
+            }
+        } catch(FileNotFoundException e) {
+            System.out.println("No such file");
+        }
+
+        if(!websiteAlreadyExists){
+
+            System.out.println("Enter a username:");
+            String username = scanner.nextLine();
+
+            System.out.println("Enter a password:");
+            String password = scanner.nextLine(); // Needs to be in bytes for added security
+
+            //Receive the login password
+            String originalPasswordString = new String(originalPassword);
+
+            try {
+                SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
+                IvParameterSpec ivParameterSpec = Encryption.generateIv();
+                String encryptedPassword = Encryption.encrypt(password, key, ivParameterSpec);
+
+                try (FileWriter writer = new FileWriter(url.getFile(), true)) {
+                    writer.write(name + DELIMITER + username + DELIMITER + encryptedPassword + "\n");
+                    System.out.println("Password added.");
+                } catch (IOException e) {
+                    System.err.println("Error writing to passwords file: " + e.getMessage());
+                }
+
+            } catch(Exception e) {
+                System.err.println("Error writing to passwords file: " + e.getMessage());
+            }
+        }
+    }
+
+    public static void handleGet(Scanner scanner, char[] originalPassword, URL url, File file){
+        System.out.println(ASCII.GETPWD);
+        System.out.println("Enter a website or app name:");
+        String name = scanner.nextLine();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
+            String line;
+            boolean found = false;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(DELIMITER);
+                if (parts[0].equals(name)) {
+                    //Receive the login password
+                    String originalPasswordString = new String(originalPassword);
+                    String plainText = "";
+
+                    //Decryption
+                    try {
+                        SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
+                        plainText = Encryption.decrypt(parts[2], key);
+                    } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
+                            InvalidKeySpecException | BadPaddingException | InvalidKeyException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("                                    ***************************");
+                    System.out.println("                                    * Username: " + parts[1]);
+                    System.out.println("                                    * Password: " + plainText);
+                    System.out.println("                                    ***************************");
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.out.println("Password not found.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading from passwords file: " + e.getMessage());
+        }
     }
 
 
