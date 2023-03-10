@@ -32,9 +32,9 @@ public class ASCII {
             "                     \\_/  \"\\                                         | |.-\"\"-.|      \n" +
             "                     ( \\  ~/__                                      ///`.::::.`\\      \n" +
             "                      \\    \\__)        YOU MUST CREATE             ||| ::/  \\:: ;     \n" +
-            "                      /     \\                A KEY!                ||; ::\\__/:: ;      \n" +
+            "                      /     \\              A KEY!                  ||; ::\\__/:: ;      \n" +
             "                     /      _\\                                      \\\\\\ '::::' /     \n" +
-            " --/q....../\\______`\"\"\"\"\"``\"jgs\"_____________________________________`=':-..-'`jgs.........";
+            " --/q....../\\______`\"\"\"\"\"``\"jgs\"_____________________________________`=':-..-'`jgs......... \n";
 
 
     public static final String ENTERKEY = "\n" +
@@ -47,7 +47,7 @@ public class ASCII {
             "                      \\    \\__)        YOU MUST ENTER              ||| ::/  \\:: ;     \n" +
             "                      /     \\              THE KEY!                ||; ::\\__/:: ;      \n" +
             "                     /      _\\                                      \\\\\\ '::::' /     \n" +
-            " --/q....../\\______`\"\"\"\"\"``\"jgs\"_____________________________________`=':-..-'`jgs.........";
+            " --/q....../\\______`\"\"\"\"\"``\"jgs\"_____________________________________`=':-..-'`jgs.........\n";
 
     public static final String OUTRO = "                                             ______\n" +
             "                                          ,-' ;  ! `-.\n" +
@@ -85,10 +85,10 @@ public class ASCII {
 
     public static final String ABOUT = "                    \n" +
             "         This is a password manager which stores your usernames and passwords for different websites. \n" +
-            "         When you have created your first key, all of your entries will be encrypted using --- \n" +
+            "         When you have created your first key, all of your entries will be encrypted using AES-CBC \n" +
             "         and written to a text file called passwords.txt. The initial key will be used for\n" +
             "         all encryptions. You can open the text file and see the usernames but the passwords will\n" +
-            "         be in ciphertext. Additionally, the tool has a basic password analyser for the key. \n";
+            "         be in ciphertext. \n";
 
     public static final String BURNING = "\n" +
             "                                     (  .      )\n" +

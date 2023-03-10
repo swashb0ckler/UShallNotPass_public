@@ -2,7 +2,6 @@ package ushallnotpass_public;
 
 import ushallnotpass_public.encryption.Encryption;
 import ushallnotpass_public.visuals.ASCII;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -118,7 +117,6 @@ public class App {
         scanner.close();
     }
 
-
     public static String getEncryptedPassword(File file) throws FileNotFoundException {
         Scanner fileScanner = new Scanner(file);
         String firstLine = fileScanner.nextLine();
@@ -126,7 +124,6 @@ public class App {
         String pattern = "^Test:\\s*";
         return firstLine.replaceFirst(pattern, "");
     }
-
 
     public static void commandHandler(String command, Scanner scanner, char[] originalPassword, URL url, File file) {
 
@@ -437,93 +434,5 @@ public class App {
         return false;
     }
 
-    
-}
 
-/*
- *   BACKLOG
- *
- *
- * //
- * Need to fix the shadowJar problem **CHECK
- * Need to create new password file after BURN EVERYTHING,change and so on **CHECK
- * Need to fix the decoder problem
- * Refactor
- *
- *
- * //
- *   0) Setup github and check how to make things private and then public later **CHECK
- *
- *   1) Encrypt password-entry to txt using final toy byte key **CHECK
- *   2) get receives the website, username and password from txt and decrypts password using the toy key **CHECK
- *
- *   3) if file doesn't exist (first time using) **CHECK
- *       - (Check to see password strength (=======))
- *       - bytes[] userInput = scanner.nextline().bytes
- *       - userInput (key) is used to encrypt the text CheckTo345290See!!IfKeyIsCorrect
- *       - Encrypted test goes to txt file
- *
- *   4) if file exists, the program asks for a key. if the key test pass, the user input is saved as key used for encryption. **CHECK
- *       - user input is  --> saved in bytearray **IMPORTANT
- *       - the test is received
- *       - input is encrypted and compared with the encrypted test from txt
- *       - if there is a match: store the user input as key (maybe in keyStore)
- *       - -ACCEPTED- else -DENIED-
- *
- *
- *   5) Change an entry **CHECK
- *      - name of entry is saved as siteName
- *      - if passwords.txt contains siteName -->
- *      - a new list is made
- *      - all entries from passwords.txt are inserted into a map/list
- *          - if entry elem == siteName
- *              prompt user with new username and new password
- *      - siteName===username===password is inserted
- *      - the rest of the entries are inserted
- *      - passwords.txt is wiped and list is copied into passwords.txt
- *      - -Username and Password changed-
- *
- *   6) Delete an entry **CHECK
- *      - (are you sure?) scanner.nextline()
- *      - name of entry is saved as siteName
- *      - if passwords.txt contains siteName -->
- *      - a new list is made
- *      - all entries from password.txt is inserted into list
- *          if entry elem == siteName then do not include
- *      - rest of entries are inserted
- *      - -Sitename + has been deleted
- *
- *
- *   7) List all entries **CHECK
- *      - make new list
- *      - read each line from passwords.txt and insert into list
- *      - for each elem in list
- *          - split elem in 3 parts
- *          - password = decrypt part 3 using secret key
- *          - sout(website: part[1], username: part[2], password)
- *
- *   8) Make it easy to send - package as a jar file
- *      - jar cfm MyProgram.jar Manifest.txt *.class --> creates jar
- *      - java -jar MyProgram.jar --> when friends need to run it
- *
- *
- *   9) Make github page with animations and so on.
- *      - Listing the good things: uses AES, bitstring so not vulnerable to memory dumps,
- *      - Disclaimer: While the secret key is hidden, the plaintext test makes plaintext attacks and brute force easier.
- *
- *
- *
- *   UShallNotPass is a simple encrypted password manager which turns your terminal into a vault for all of your usernames and passwords across the internet or perhaps for your wifi or netflix account.
- *  - A java command line tool which uses AES encryption to write entries to a txt file.
- *  - Simple and fun project to remember all of your passwords scattered across, well anywhere.
- *
- *  - Insert gif from ENTERKEY
- *
- *  - Getting started
- *      - Install java
- *      - run: ---------
- *      - Make sure your are in the directory you want to use
- *
- *  - more gifs
- *
- * */
+}
