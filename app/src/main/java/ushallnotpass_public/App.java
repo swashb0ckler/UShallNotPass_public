@@ -58,8 +58,19 @@ public class App {
             //Intro Text
             System.out.println(ASCII.FIRSTKEY);
             //Encrypting first password
-            System.out.println("Create a key for all future logins:");
-            String enteredKey = scanner.nextLine();
+            //System.out.println("Create a key for all future logins:");
+            //String enteredKey = scanner.nextLine();
+
+            //Masking original password
+            Console console = System.console();
+            if (console == null) {
+                System.out.println("Console not available");
+                System.exit(1);
+            }
+            char[] passwordArray = console.readPassword("Create a key for all future logins: ");
+            String enteredKey = new String(passwordArray);
+
+            //Encrypting first password
             IvParameterSpec ivParameterSpec = Encryption.generateIv();
             SecretKey key = Encryption.createSecretKey(enteredKey, "fixedSalt");
             String encryptedPassword = Encryption.encrypt(enteredKey, key, ivParameterSpec);
@@ -83,8 +94,14 @@ public class App {
             //Intro for existing user
             System.out.println(ASCII.ENTERKEY);
 
-            System.out.println("\n" + "Enter your original key:");
-            String enteredKey = scanner.nextLine();
+            //Masking original password
+            Console console = System.console();
+            if (console == null) {
+                System.out.println("Console not available");
+                System.exit(1);
+            }
+            char[] passwordArray = console.readPassword("Enter the original key: ");
+            String enteredKey = new String(passwordArray);
 
             //Authentication by comparison with test from file
             String encryptedPassword = getEncryptedPassword(file);
