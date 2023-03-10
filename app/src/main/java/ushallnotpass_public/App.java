@@ -57,9 +57,6 @@ public class App {
 
             //Intro Text
             System.out.println(ASCII.FIRSTKEY);
-            //Encrypting first password
-            //System.out.println("Create a key for all future logins:");
-            //String enteredKey = scanner.nextLine();
 
             //Masking original password
             Console console = System.console();
