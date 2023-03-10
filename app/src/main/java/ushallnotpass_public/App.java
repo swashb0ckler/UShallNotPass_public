@@ -30,52 +30,44 @@ public class App {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException,
             NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, FileNotFoundException, InterruptedException {
 
-        URL url = App.class.getResource(PASSWORDS_FILE);
-
+        //Intro screen
         System.out.println(ASCII.HEADLINE);
         System.out.println(ASCII.ENTERKEY);
 
         // Initialize empty password
         char[] originalPassword = null;
 
+        //Get password file
+        URL url = App.class.getResource(PASSWORDS_FILE);
         File file = new File(url.getFile());
 
+        //If file doesn't exist a custom folder is created
         if (!file.exists()) {
             try {
                 Files.createDirectories(file.getParentFile().toPath());
                 Files.createFile(file.toPath());
-                System.out.println("Created passwords.txt");
             } catch (IOException e) {
                 System.err.println("Failed to create passwords.txt: " + e.getMessage());
             }
-        } else {
-            System.out.println("passwords.txt already exists");
         }
 
+        //Creates scanner
         Scanner scanner = new Scanner(System.in);
 
-        //Testing if there are more than one line
+        //Checks if first login
         int lineCounter = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(url.getFile()))) {
-            String line;
-            boolean firstLineHasPassed = false;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(DELIMITER);
-                if(firstLineHasPassed){
-                    //System.out.println(parts[0] + "===" + parts[1] + "===" + parts[2]);
-                }
-                firstLineHasPassed = true;
+            while (reader.readLine() != null) {
                 lineCounter++;
             }
 
         } catch (IOException e) {
             System.err.println("Error reading from passwords file: " + e.getMessage());
         }
-
-        //Checks if it's first login
+        //When it's first login:
         if(lineCounter < 1){
 
-            //Encrypting first password into test
+            //Encrypting first password
             System.out.println("Create a key for all future logins:");
             String enteredKey = scanner.nextLine();
             IvParameterSpec ivParameterSpec = Encryption.generateIv();
@@ -85,10 +77,10 @@ public class App {
             //Save encrypted password test
             encryptedPasswordTest = encryptedPassword;
 
-            //Setting the original password
+            //Setting first password
             originalPassword = enteredKey.toCharArray();
 
-            //Writing to file
+            //Writing to first encryptedPassword to txt for next login authentication
             try (FileWriter writer = new FileWriter(url.getFile(), true)) {
                 writer.write("Test:" + encryptedPassword + "\n");
                 System.out.println("Password added.");
@@ -97,12 +89,12 @@ public class App {
             }
 
         } else{
-            System.out.println("\n" + "Enter the key you normally use:");
+
+            System.out.println("\n" + "Enter your original key:");
             String enteredKey = scanner.nextLine();
 
-            String encryptedPassword = getEncryptedPassword(file);
-
             //Authentication by comparison with test from file
+            String encryptedPassword = getEncryptedPassword(file);
             SecretKey key = Encryption.createSecretKey(enteredKey, "fixedSalt");
             String passwordFromFile = Encryption.decrypt(encryptedPassword, key);
 
@@ -365,6 +357,7 @@ public class App {
                         SecretKey key = Encryption.createSecretKey(originalPasswordString, "fixedSalt");
                         IvParameterSpec ivParameterSpec = Encryption.generateIv();
                         String encryptedPassword = Encryption.encrypt(newPassword, key, ivParameterSpec);
+
                         arrList.add(parts[0] + "===" + parts[1] + "===" + encryptedPassword);
 
                     } catch(InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
@@ -373,10 +366,10 @@ public class App {
                     }
 
                     found = true;
-                    break;
 
                 } else{
                     arrList.add(line);
+
                 }
             }
             reader.close();
@@ -387,7 +380,6 @@ public class App {
                 writer.newLine();
             }
             writer.close();
-
             if (!found) {
                 System.out.println("Website/App not found.");
             }
