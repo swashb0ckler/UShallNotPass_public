@@ -13,10 +13,6 @@ With UShallNotPass you can turn your command-line into a vault for all of your l
 ## How it Works
 UShallNotPass uses AES-CBC encryption and writes the ciphertext to a txt file. The original password is used for future authentication and to encrypt all new passwords. 
 
-<p align="center">
-    <img width="600px" src="https://i.ibb.co/YcggtMW/ushallnotpassscreenshot.png"/>
-</p>
-
 **Features include**
 
 * Common commands such as getting, deleting and changing passwords
