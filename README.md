@@ -18,10 +18,6 @@ UShallNotPass uses AES-CBC encryption and writes the ciphertext to a txt file. T
 * Listing all websites, usernames and encrypted passwords
 * A 'BURN EVERYTHING' command. 
 
-<p align="center">
-    <img width="650px" src="https://www.linkpicture.com/q/USHALLNOTpassScreen_1.png"/>
-</p>
-
 
 ## Try It out 
 
