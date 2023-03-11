@@ -19,7 +19,7 @@ UShallNotPass uses AES-CBC encryption and writes the ciphertext to a txt file. T
 * A 'BURN EVERYTHING' command. 
 
 <p align="center">
-    <img width="800px" src="https://www.linkpicture.com/q/USHALLNOTpassScreen_1.png"/>
+    <img width="650px" src="https://www.linkpicture.com/q/USHALLNOTpassScreen_1.png"/>
 </p>
 
 
